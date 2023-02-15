@@ -1,0 +1,60 @@
+---
+title: "2-15-23 Practice Lors"
+author: "Seth Lors"
+date: "2023-02-15"
+output: html_document
+---
+
+Initial Setup
+```{r}
+library(classdata)
+head(fbiwide)
+ggplot2::ggplot()
+```
+
+1. Draw a scatter plot of the log transformed number of burglaries by motor vehicle thefts. Map the state variable to colour. Why is this a terrible idea?
+This is a bad idea because there are too many states to make the difference between some states distinct enough. For example, Alaska, and Arizona have similar      colors but different values.
+```{r}
+ggplot(data = fbiwide, aes(x = log(burglary), y = log(motor_vehicle_theft))) + geom_point(aes(color = state))
+```
+Question 2
+Draw a scatterplot of the log transformed number of burglaries by motor vehicle thefts. Map population to size. How do we interpret the output?
+```{r}
+ggplot(data = fbiwide, aes(x = log(burglary), y = log(motor_vehicle_theft))) + geom_point(aes(color = state, size = population))
+```
+Question 3
+Draw a scatterplot of the log transformed number of burglaries by motor vehicle thefts. Map Population to size. How do we interpret the output?
+```{r}
+ggplot(data = fbiwide[fbiwide$year == 2019, ], aes(x = population)) + geom_histogram()
+```
+Question 4
+Compare the log transformed number of burglaries by motor vehicle thefts over years. How to make a nice plot?
+```{r}
+fbiwide1 = fbiwide
+fbiwide1 = fbiwide1[fbiwide1$year >= 1980, ]
+fbiwide1 = fbiwide1[fbiwide1$year < 2020, ]
+fbiwide1$decade = floor(fbiwide1$year / 10)
+fbiwide1$decade = paste0(fbiwide1$decade, "0s")
+
+ggplot(data = fbiwide1, aes(x = log(burglary), y = log(motor_vehicle_theft))) + geom_point(aes(color = decade))
+```
+Question 5
+Compare the log transformed number of burglaries by motor vehicle thefts over States, coloured by years.
+```{r}
+ggplot(data = fbiwide1, aes(x = log(burglary), y = log(motor_vehicle_theft))) + geom_point(aes(color = decade)) + facet_wrap(.~ state_abbr)
+```
+Question 6
+Now, only focus on comparing California, Colorado, Iowa, Illinois, District of Columbia and New York.
+```{r}
+state.subset = c("California", "Colorado", "Iowa", "Illinois", "District of Columbia", "New York")
+
+fbiwide2 = fbiwide1[fbiwide1$state %in% state.subset, ]
+ggplot(data = fbiwide2, aes(x = log(burglary), y = log(motor_vehicle_theft))) + geom_point(aes(color = decade)) + facet_wrap(.~ state)
+```
+Question 7
+We all know population is an important factor. How to compare different states by standardized population?
+```{r}
+ggplot(data = fbiwide2, aes(x = log(burglary / population * 66424), y = log(motor_vehicle_theft / population * 66424))) + geom_point(aes(color = decade)) + facet_wrap(.~ state)
+```
+
+```
